@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# parse.py - converts telegram json to jekyll md.
+# parse.py - converts telegram json to Obsidian md.
 # Copyright (c) 2020, Lev Brekalov
 # Changes from progxaker, 2021
 
@@ -53,9 +53,7 @@ def parse_post_photo(post, photo_dir):
     converts photo tag to markdown image link
     '''
 
-    post_photo_src = os.path.basename(post['photo'])
-    post_photo_src = os.path.join(photo_dir, post_photo_src)
-    post_photo = '![image]({src})\n\n'.format(src=post_photo_src)
+    post_photo = '![image]({src})\n\n'.format(src=post['photo'])
 
     return post_photo
 
@@ -160,17 +158,10 @@ def parse_post_text(post):
 def parse_post_media(post, media_dir):
 
     '''
-    wraps file links into html tags
+    wraps file links to Obsidian link
     '''
 
-    # get filename without parent directory
-    post_media_src = os.path.basename(post['file'])
-
-    # add parent directory
-    post_media_src = os.path.join(media_dir, post_media_src)
-    post_media = '\n<audio controls>\n \
-        <source src="{src}" type="{mime_type}">\n \
-        </audio>'.format(src=post_media_src, mime_type=post['mime_type'])
+    post_media = '\n![[{src}]]'.format(src=post['file'])
 
     return post_media
 
@@ -202,7 +193,7 @@ def main():
     parser = argparse.ArgumentParser(
             usage='%(prog)s [options] json_file',
             description='Convert exported Telegram channel data json to \
-                    bunch of markdown posts ready to use with jekyll')
+                    bunch of markdown posts ready to use with Obsidian')
     parser.add_argument(
             'json', metavar='json_file',
             help='result.json file from telegram export')
