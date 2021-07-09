@@ -1,7 +1,7 @@
-# tg2md
+# tg2obsidian
 
 This script parses output from Telegram channel and converts each post to 
-jekyll-applicable post in markdown.
+Obsidian post in markdown.
 
 Telegram Desktop creates JSON file, as well as different directories containing
 multimedia, photos, etc. This script creates new directory and populates it with
@@ -39,9 +39,6 @@ and `files`, you should specify their location with `--photo-dir` and
 `--media-dir` flags respectively. Note that they only change links in the
 markdown files.
 
-## todo's
+## Original author
 
-- replies
-- single/muliple tags
-- forwarded posts
-- custom post header
+Forked from [tg2md](https://github.com/la-ninpre/tg2md) in 2021, original author - [la-ninpre](https://github.com/la-ninpre)
