@@ -2,6 +2,7 @@
 
 # parse.py - converts telegram json to jekyll md.
 # Copyright (c) 2020, Lev Brekalov
+# Changes from progxaker, 2021
 
 # TODO summary:
 # - replies
@@ -204,7 +205,6 @@ def main():
                     bunch of markdown posts ready to use with jekyll')
     parser.add_argument(
             'json', metavar='json_file',
-            type=open,
             help='result.json file from telegram export')
     parser.add_argument(
             '--out-dir', metavar='out_dir',
@@ -239,7 +239,7 @@ def main():
 
     # load json file
     try:
-        with args.json as f:
+        with open(args.json, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except FileNotFoundError:
         sys.exit('result.json not found.\nPlease, specify right file')
@@ -256,7 +256,7 @@ def main():
             post_filename = str(post_date.date()) + '-' + str(post_id) + '.md'
             post_path = os.path.join(args.out_dir, post_filename)
 
-            with open(post_path, 'w') as f:
+            with open(post_path, 'w', encoding='utf-8') as f:
                 print(print_default_post_header(
                     post_id, post_date, None), file=f)
                 print(parse_post(post, args.photo_dir, args.media_dir), file=f)
