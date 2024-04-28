@@ -261,6 +261,11 @@ def main():
                 print(print_default_post_header(
                     post_id, post_date, None), file=f)
                 print(parse_post(post, args.photo_dir, args.media_dir), file=f)
+        elif post['type'] == 'service' and post['action'] == 'clear_history':
+            log.debug("Service message: 'clear_history'.")
+            continue
+        else:
+            log.warning("The post #%i is skipped.", post['id'])
 
 
 if __name__ == '__main__':
