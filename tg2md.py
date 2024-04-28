@@ -13,7 +13,10 @@
 import os
 import argparse
 import json
+import logging
 from datetime import datetime
+
+log = logging.getLogger(__name__)
 
 def print_default_post_header(post_title, post_date, post_tag):
 
@@ -214,6 +217,11 @@ def main():
             help='location of media files. this changes only links\
                     to files in markdown text, so specify your \
                     desired location (default: files)')
+    parser.add_argument(
+            '--log-level', metavar='log_level',
+            nargs='?', default='warn',
+            help='Set the logging level (e.g., debug, info, warning,\
+                    error, critical)')
     args_wip = parser.add_argument_group('work in progress')
     args_wip.add_argument(
             '--post-header', metavar='post_header',
@@ -222,6 +230,8 @@ def main():
                     (now doesn\'t work)')
 
     args = parser.parse_args()
+
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s - %(message)s', level=args.log_level.upper())
 
     try:
         os.mkdir(args.out_dir)
