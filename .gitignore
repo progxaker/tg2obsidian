@@ -1,3 +1,4 @@
+formatted_posts/
 *.md
 !README.md
 !LICENSE.md
