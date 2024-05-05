@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# parse.py - converts telegram json to Obsidian md.
+# tg2md.py - converts Telegram JSON to Obsidian Markdown.
 # Copyright (c) 2020, Lev Brekalov
-# Changes from progxaker, 2021
+# Changes from progxaker, 2021-2024
 
 # TODO summary:
 # - replies
-# - single/muliple tags
-# - forwarded posts
 # - custom post header
 
 import os
