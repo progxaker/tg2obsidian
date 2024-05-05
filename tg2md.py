@@ -50,14 +50,14 @@ def print_default_post_header(post, user_id):
 
     if 'from_id' in post:
         if post['from_id'] != 'user{}'.format(user_id):
-            from_header += "from: '{name}' ({user_id})\n"
+            from_header = "from: '{name}' ({user_id})\n"
             post_header += from_header.format(name=post['from'], user_id=post['from_id'])
 
     if 'forwarded_from' in post:
-        post_header += "forwarded\_from: '{}'\n".format(post['forwarded_from'])
+        post_header += "forwarded\\_from: '{}'\n".format(post['forwarded_from'])
 
     if 'saved_from' in post:
-        post_header += "saved\_from: '{}'\n".format(post['saved_from'])
+        post_header += "saved\\_from: '{}'\n".format(post['saved_from'])
 
     post_header += 'layout: post\n'\
                    '---\n'
@@ -129,7 +129,7 @@ def text_link_format(text, link):
     '''
 
     # FIXME: Process text such as [.\n](link)
-    if text == u'\u200b' or text == u'\u200b\u200b' or text == '\xa0':
+    if text in ('\u200b', '\u200b\u200b', '\xa0'):
         log.debug('The text is zero-width space, process as an inline image.')
         link_fmt = '> ![]({href})\n\n'.format(href=link)
     else:
@@ -166,7 +166,7 @@ def parse_text_object(post_id, obj, stickers_dir):
     if obj_type == 'text_link':
         return text_link_format(obj_text, obj['href'])
 
-    elif obj_type == 'link' or obj_type == 'email':
+    elif obj_type in ('link', 'email'):
         link = obj_text.strip()
         link = 'https://' * (obj_type == 'link') * \
             (1 - link.startswith('https://')) + link
@@ -231,14 +231,13 @@ def parse_post_text(post, stickers_dir):
     if isinstance(post_raw_text, str):
         return str(post_raw_text)
 
-    else:
-        for obj in post_raw_text:
-            if isinstance(post_raw_text, str):
-                post_parsed_text += obj
-            elif (text := parse_text_object(post_id, obj, stickers_dir)) is not None:
-                post_parsed_text += str(text)
+    for obj in post_raw_text:
+        if isinstance(post_raw_text, str):
+            post_parsed_text += obj
+        elif (text := parse_text_object(post_id, obj, stickers_dir)) is not None:
+            post_parsed_text += str(text)
 
-        return post_parsed_text
+    return post_parsed_text
 
 def parse_post_media(post, media_dir):
 
