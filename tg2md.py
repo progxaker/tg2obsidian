@@ -15,6 +15,7 @@ import os
 import argparse
 import json
 import logging
+import re
 from datetime import datetime
 
 log = logging.getLogger(__name__)
@@ -104,6 +105,20 @@ def text_format(string, fmt):
     return output
 
 
+# Deserialization based on tdesktop source code
+# https://github.com/telegramdesktop/tdesktop/blob/7e071c770f7691ffdbbbd38ac3e17c9aae4d21b3/Telegram/SourceFiles/export/output/export_output_json.cpp#L26-L70
+#
+# TODO: Implement the last two 'if else' statements.
+def deserialize_string(text):
+
+    text.replace(r'\n', '\n')
+    text.replace(r'\r', '\r')
+    text.replace(r'\t', '\t')
+    text.replace(r'\"', '"')
+    text.replace(r'\\', '\\')
+
+    return text
+
 def text_link_format(text, link):
 
     '''
@@ -127,7 +142,7 @@ def parse_text_object(obj):
     '''
 
     obj_type = obj['type']
-    obj_text = obj['text']
+    obj_text = deserialize_string(obj['text'])
 
     log.debug("Process the '%s' object of the post #%i with the content %r.", obj_type, post_id, obj)
 
