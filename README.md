@@ -34,11 +34,6 @@ use `--out-dir` flag
 $ python tg2md.py result.json --out-dir path/to/post/output
 ```
 
-Also if your jekyll directory storing media files in folders other than `photos`
-and `files`, you should specify their location with `--photo-dir` and
-`--media-dir` flags respectively. Note that they only change links in the
-markdown files.
-
 ## Original author
 
 Forked from [tg2md](https://github.com/la-ninpre/tg2md) in 2021, original author - [la-ninpre](https://github.com/la-ninpre)

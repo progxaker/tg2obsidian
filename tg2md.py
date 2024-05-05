@@ -206,18 +206,6 @@ def main():
             help='output directory for markdown files\
                     (default: formatted_posts)')
     parser.add_argument(
-            '--photo-dir', metavar='photo_dir',
-            nargs='?', default='photos',
-            help='location of image files. this changes only links\
-                    to photos in markdown text, so specify your\
-                    desired location (default: photos)')
-    parser.add_argument(
-            '--media-dir', metavar='media_dir',
-            nargs='?', default='files',
-            help='location of media files. this changes only links\
-                    to files in markdown text, so specify your \
-                    desired location (default: files)')
-    parser.add_argument(
             '--log-level', metavar='log_level',
             nargs='?', default='warn',
             help='Set the logging level (e.g., debug, info, warning,\
@@ -228,6 +216,18 @@ def main():
             nargs='?',
             help='yaml front matter for your posts \
                     (now doesn\'t work)')
+    args_wip.add_argument(
+            '--photo-dir', metavar='photo_dir',
+            nargs='?', default='photos',
+            help='location of image files. this changes only links\
+                    to photos in markdown text, so specify your\
+                    desired location (default: photos)')
+    args_wip.add_argument(
+            '--media-dir', metavar='media_dir',
+            nargs='?', default='files',
+            help='location of media files. this changes only links\
+                    to files in markdown text, so specify your \
+                    desired location (default: files)')
 
     args = parser.parse_args()
 
