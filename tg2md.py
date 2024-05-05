@@ -41,15 +41,13 @@ def print_default_post_header(post, user_id):
     post_tags = parse_tags(post['text_entities'])
 
     # TODO: support for custom header
-    post_header = '---\n'\
-        'title: {title}\n'\
-        'date: {date}\n'.format(title=post_title, date=post_date)
+    post_header = f'---\ntitle: {post_title}\ndate: {post_date}\n'
 
     if post_tags:
-        post_header += 'tags: {tags}\n'.format(tags=post_tags)
+        post_header += f'tags: {post_tags}\n'
 
     if 'from_id' in post:
-        if post['from_id'] != 'user{}'.format(user_id):
+        if post['from_id'] != f'user{user_id}':
             from_header = "from: '{name}' ({user_id})\n"
             post_header += from_header.format(name=post['from'], user_id=post['from_id'])
 
@@ -131,7 +129,7 @@ def text_link_format(text, link):
     # FIXME: Process text such as [.\n](link)
     if text in ('\u200b', '\u200b\u200b', '\xa0'):
         log.debug('The text is zero-width space, process as an inline image.')
-        link_fmt = '> ![]({href})\n\n'.format(href=link)
+        link_fmt = f'> ![]({link})\n\n'
     else:
         # convert telegram links to anchors
         # this implies that telegram links are pointing to the same channel
@@ -170,8 +168,7 @@ def parse_text_object(post_id, obj, stickers_dir):
         link = obj_text.strip()
         link = 'https://' * (obj_type == 'link') * \
             (1 - link.startswith('https://')) + link
-        post_link = '<{href}>'.format(href=link)
-        return post_link
+        return f'<{link}>'
 
     elif obj_type == 'phone':
         return obj_text
@@ -204,15 +201,15 @@ def parse_text_object(post_id, obj, stickers_dir):
         return 'https://t.me/{}'.format(obj_text[1:])
 
     elif obj_type == 'blockquote':
-        return '> {}'.format(obj_text)
+        return f'> {obj_text}'
 
     elif obj_type == 'custom_emoji':
         document_id = obj['document_id']
         document_id = re.sub(r'( |\\|/|\(|\))', r'\\\g<1>', obj['document_id'])
-        return '![{text}]({src})\n\n'.format(text=obj_text, src=document_id)
+        return f'![{obj_text}]({document_id})\n\n'
 
     elif obj_type == 'spoiler':
-        return '> [!info]\n> {text}\n\n'.format(text=obj_text)
+        return f'> [!info]\n> {obj_text}\n\n'
 
     elif obj_type == 'hashtag':
         return None
