@@ -141,7 +141,7 @@ def text_link_format(text, link):
 
     return link_fmt
 
-def parse_text_object(post_id, obj):
+def parse_text_object(post_id, obj, stickers_dir):
 
     # https://github.com/telegramdesktop/tdesktop/blob/7e071c770f7691ffdbbbd38ac3e17c9aae4d21b3/Telegram/SourceFiles/export/output/export_output_json.cpp#L164-L189
     '''
@@ -203,6 +203,11 @@ def parse_text_object(post_id, obj):
     elif obj_type == 'blockquote':
         return '> {}'.format(obj_text)
 
+    elif obj_type == 'custom_emoji':
+        document_id = obj['document_id']
+        document_id = re.sub(r'( |\\|/|\(|\))', r'\\\g<1>', obj['document_id'])
+        return '![{text}]({src})\n\n'.format(text=obj_text, src=document_id)
+
     elif obj_type == 'spoiler':
         return '> [!info]\n> {text}\n\n'.format(text=obj_text)
 
@@ -213,7 +218,7 @@ def parse_text_object(post_id, obj):
         log.warning("Cannot format the '%s' object type of the post #%i.", obj_type, post_id)
 
 # TODO: do not parse the sequence 'hashtag' 'plain' 'hashtag' 'plain' $
-def parse_post_text(post):
+def parse_post_text(post, stickers_dir):
     # TODO: handle reply-to
     post_id = post['id']
     post_raw_text = post['text_entities']
@@ -226,7 +231,7 @@ def parse_post_text(post):
         for obj in post_raw_text:
             if type(obj) == str:
                 post_parsed_text += obj
-            elif (text := parse_text_object(post_id, obj)) is not None:
+            elif (text := parse_text_object(post_id, obj, stickers_dir)) is not None:
                 post_parsed_text += str(text)
 
         return post_parsed_text
@@ -242,7 +247,7 @@ def parse_post_media(post, media_dir):
     return post_media
 
 
-def parse_post(post, photo_dir, media_dir):
+def parse_post(post, photo_dir, media_dir, stickers_dir):
 
     '''
     converts post object to formatted text
@@ -301,6 +306,12 @@ def main():
             help='location of media files. this changes only links\
                     to files in markdown text, so specify your \
                     desired location (default: files)')
+    args_wip.add_argument(
+            '--stickers-dir', metavar='stickers_dir',
+            nargs='?', default='stickers',
+            help='location of sticker files. this changes only links\
+                    to stickers in markdown text, so specify your \
+                    desired location (default: stickers)')
 
     args = parser.parse_args()
 
@@ -333,7 +344,8 @@ def main():
             # const auto text = QString::fromUtf8(data.v);
             with open(post_path, 'w', encoding='utf-8') as f:
                 print(print_default_post_header(post, user_id), file=f)
-                print(parse_post(post, args.photo_dir, args.media_dir), file=f)
+                print(parse_post(post, args.photo_dir, args.media_dir, args.stickers_dir), file=f)
+
         elif post['type'] == 'service' and post['action'] == 'clear_history':
             log.debug("The type of post #%i is 'service' and the action is 'clear_history'.")
             continue
