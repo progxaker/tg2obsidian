@@ -141,8 +141,15 @@ def text_link_format(text, link):
 
     return link_fmt
 
+def parse_text_object(post_id, obj):
 
-def parse_text_object(obj):
+    # https://github.com/telegramdesktop/tdesktop/blob/7e071c770f7691ffdbbbd38ac3e17c9aae4d21b3/Telegram/SourceFiles/export/output/export_output_json.cpp#L164-L189
+    '''
+    unknown, mention, hashtag, bot_command, link, email
+    bold, italic, code, pre, plain, text_link, mention_name
+    phone, cashtag, underline, strikethrough, blockquote
+    bank_card, spoiler, custom_emoji
+    '''
 
     '''
     detects type of text object and wraps it in corresponding formatting
@@ -184,10 +191,32 @@ def parse_text_object(obj):
     elif obj_type == 'strikethrough':
         return text_format(obj_text, 's')
 
+    elif obj_type == 'plain':
+        return obj_text
 
+    elif obj_type == 'bank_card':
+        return obj_text
+
+    elif obj_type == 'mention':
+        return 'https://t.me/{}'.format(obj_text[1:])
+
+    elif obj_type == 'blockquote':
+        return '> {}'.format(obj_text)
+
+    elif obj_type == 'spoiler':
+        return '> [!info]\n> {text}\n\n'.format(text=obj_text)
+
+    elif obj_type == 'hashtag':
+        return None
+
+    else:
+        log.warning("Cannot format the '%s' object type of the post #%i.", obj_type, post_id)
+
+# TODO: do not parse the sequence 'hashtag' 'plain' 'hashtag' 'plain' $
 def parse_post_text(post):
     # TODO: handle reply-to
-    post_raw_text = post['text']
+    post_id = post['id']
+    post_raw_text = post['text_entities']
     post_parsed_text = ''
 
     if type(post_raw_text) == str:
@@ -197,8 +226,8 @@ def parse_post_text(post):
         for obj in post_raw_text:
             if type(obj) == str:
                 post_parsed_text += obj
-            else:
-                post_parsed_text += str(parse_text_object(obj))
+            elif (text := parse_text_object(post_id, obj)) is not None:
+                post_parsed_text += str(text)
 
         return post_parsed_text
 
