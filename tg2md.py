@@ -119,19 +119,26 @@ def deserialize_string(text):
 
     return text
 
+# TODO: Put the inline image to the end of the Markdown file.
 def text_link_format(text, link):
 
     '''
     formats links
     '''
 
-    # convert telegram links to anchors
-    # this implies that telegram links are pointing to the same channel
-    if link.startswith('https://t.me/c/'):
-        link = '#' + link.split('/')[-1]
-    link_fmt = '[{text}]({href})'
-    link_fmt = link_fmt.format(text=text.strip(), href=link)
-    link_fmt += '\n' * text.count('\n') * text.endswith('\n')
+    # FIXME: Process text such as [.\n](link)
+    if text == u'\u200b' or text == u'\u200b\u200b' or text == '\xa0':
+        log.debug('The text is zero-width space, process as an inline image.')
+        link_fmt = '> ![]({href})\n\n'.format(href=link)
+    else:
+        # convert telegram links to anchors
+        # this implies that telegram links are pointing to the same channel
+        if link.startswith('https://t.me/c/'):
+            link = '#' + link.split('/')[-1]
+        link_fmt = '[{text}]({href})'
+        link_fmt = link_fmt.format(text=text, href=link)
+        link_fmt += '\n' * text.count('\n') * text.endswith('\n')
+
     return link_fmt
 
 
