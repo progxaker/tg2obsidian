@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # parse.py - converts telegram json to Obsidian md.
 # Copyright (c) 2020, Lev Brekalov
@@ -277,15 +278,16 @@ def main():
             post_filename = str(post_date.date()) + '-' + str(post['id']) + '.md'
             post_path = os.path.join(args.out_dir, post_filename)
 
+            # https://github.com/telegramdesktop/tdesktop/blob/7e071c770f7691ffdbbbd38ac3e17c9aae4d21b3/Telegram/SourceFiles/export/data/export_data_types.cpp#L244
+            # const auto text = QString::fromUtf8(data.v);
             with open(post_path, 'w', encoding='utf-8') as f:
                 print(print_default_post_header(post, user_id), file=f)
                 print(parse_post(post, args.photo_dir, args.media_dir), file=f)
         elif post['type'] == 'service' and post['action'] == 'clear_history':
-            log.debug("Service message: 'clear_history'.")
+            log.debug("The type of post #%i is 'service' and the action is 'clear_history'.")
             continue
         else:
-            log.warning("The post #%i is skipped.", post['id'])
-
+            log.warning("The type of post #%i is '%s' and it is not supported.", post['id'], post['type'])
 
 if __name__ == '__main__':
     main()
