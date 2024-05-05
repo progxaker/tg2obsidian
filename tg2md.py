@@ -50,7 +50,8 @@ def print_default_post_header(post, user_id):
 
     if 'from_id' in post:
         if post['from_id'] != 'user{}'.format(user_id):
-            post_header += "from: '{name}' ({user_id})\n".format(name=post['from'], user_id=post['from_id'])
+            from_header += "from: '{name}' ({user_id})\n"
+            post_header += from_header.format(name=post['from'], user_id=post['from_id'])
 
     if 'forwarded_from' in post:
         post_header += "forwarded\_from: '{}'\n".format(post['forwarded_from'])
@@ -159,7 +160,8 @@ def parse_text_object(post_id, obj, stickers_dir):
     obj_type = obj['type']
     obj_text = deserialize_string(obj['text'])
 
-    log.debug("Process the '%s' object of the post #%i with the content %r.", obj_type, post_id, obj)
+    log.debug("Process the '%s' object of the post #%i with the content %r.", \
+               obj_type, post_id, obj)
 
     if obj_type == 'text_link':
         return text_link_format(obj_text, obj['href'])
@@ -316,7 +318,8 @@ def main():
 
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s - %(message)s', level=args.log_level.upper())
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s - %(message)s', \
+                        level=args.log_level.upper())
 
     try:
         os.mkdir(args.out_dir)
@@ -348,10 +351,12 @@ def main():
                 print(parse_post(post, args.photo_dir, args.media_dir, args.stickers_dir), file=f)
 
         elif post['type'] == 'service' and post['action'] == 'clear_history':
-            log.debug("The type of post #%i is 'service' and the action is 'clear_history'.")
+            log.debug("The type of post #%i is 'service' and the action is 'clear_history'.", \
+                      post['id'])
             continue
         else:
-            log.warning("The type of post #%i is '%s' and it is not supported.", post['id'], post['type'])
+            log.warning("The type of post #%i is '%s' and it is not supported.", \
+                         post['id'], post['type'])
 
 if __name__ == '__main__':
     main()
