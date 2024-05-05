@@ -12,6 +12,7 @@
 # - custom post header
 
 import os
+import sys
 import argparse
 import json
 import logging
