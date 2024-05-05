@@ -18,21 +18,45 @@ from datetime import datetime
 
 log = logging.getLogger(__name__)
 
-def print_default_post_header(post_title, post_date, post_tag):
+def parse_tags(text_entities):
 
+    tags = []
+    for obj in text_entities:
+        if obj['type'] == 'hashtag':
+            tags.append(obj['text'])
+
+    return ' '.join(tags)
+
+def print_default_post_header(post, user_id):
 
     '''
     returns default post header
     '''
 
-    # TODO: handle post tag/tags
+    post_title = post['id']
+    post_date = datetime.fromisoformat(post['date'])
+    post_tags = parse_tags(post['text_entities'])
+
     # TODO: support for custom header
     post_header = '---\n'\
         'title: {title}\n'\
-        'date: {date}\n'\
-        'tags: {tag}\n'\
-        'layout: post\n'\
-        '---\n'.format(title=post_title, date=post_date, tag=post_tag)
+        'date: {date}\n'.format(title=post_title, date=post_date)
+
+    if post_tags:
+        post_header += 'tags: {tags}\n'.format(tags=post_tags)
+
+    if 'from_id' in post:
+        if post['from_id'] != 'user{}'.format(user_id):
+            post_header += "from: '{name}' ({user_id})\n".format(name=post['from'], user_id=post['from_id'])
+
+    if 'forwarded_from' in post:
+        post_header += "forwarded\_from: '{}'\n".format(post['forwarded_from'])
+
+    if 'saved_from' in post:
+        post_header += "saved\_from: '{}'\n".format(post['saved_from'])
+
+    post_header += 'layout: post\n'\
+                   '---\n'
 
     return post_header
 
@@ -104,11 +128,9 @@ def parse_text_object(obj):
     obj_type = obj['type']
     obj_text = obj['text']
 
-    if obj_type == 'hashtag':
-        post_tag = obj_text
-        return post_tag
+    log.debug("Process the '%s' object of the post #%i with the content %r.", obj_type, post_id, obj)
 
-    elif obj_type == 'text_link':
+    if obj_type == 'text_link':
         return text_link_format(obj_text, obj['href'])
 
     elif obj_type == 'link' or obj_type == 'email':
@@ -157,14 +179,13 @@ def parse_post_text(post):
 
         return post_parsed_text
 
-
 def parse_post_media(post, media_dir):
 
     '''
     wraps file links to Obsidian link
     '''
 
-    post_media = '\n![[{src}]]'.format(src=post['file'])
+    post_media = '![[{src}]]\n\n'.format(src=post['file'])
 
     return post_media
 
@@ -181,12 +202,12 @@ def parse_post(post, photo_dir, media_dir):
     if 'photo' in post:
         post_output += str(parse_post_photo(post, photo_dir))
 
-    # post text
-    post_output += str(parse_post_text(post))
-
     # optional media
     if 'media_type' in post:
         post_output += str(parse_post_media(post, media_dir))
+
+    # post text
+    post_output += str(parse_post_text(post, stickers_dir))
 
     return post_output
 
@@ -245,21 +266,19 @@ def main():
     except FileNotFoundError:
         sys.exit('result.json not found.\nPlease, specify right file')
 
-    # load only messages
+    # load messages and user_id
+    user_id = data['id']
     raw_posts = data['messages']
 
     for post in raw_posts:
-        # TODO: handle forwarded posts
-        if post['type'] == 'message' and 'forwarded_from' not in post:
+        if post['type'] == 'message':
 
             post_date = datetime.fromisoformat(post['date'])
-            post_id = post['id']
-            post_filename = str(post_date.date()) + '-' + str(post_id) + '.md'
+            post_filename = str(post_date.date()) + '-' + str(post['id']) + '.md'
             post_path = os.path.join(args.out_dir, post_filename)
 
             with open(post_path, 'w', encoding='utf-8') as f:
-                print(print_default_post_header(
-                    post_id, post_date, None), file=f)
+                print(print_default_post_header(post, user_id), file=f)
                 print(parse_post(post, args.photo_dir, args.media_dir), file=f)
         elif post['type'] == 'service' and post['action'] == 'clear_history':
             log.debug("Service message: 'clear_history'.")
