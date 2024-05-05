@@ -219,6 +219,7 @@ def parse_text_object(post_id, obj, stickers_dir):
 
     else:
         log.warning("Cannot format the '%s' object type of the post #%i.", obj_type, post_id)
+        return None
 
 # TODO: do not parse the sequence 'hashtag' 'plain' 'hashtag' 'plain' $
 def parse_post_text(post, stickers_dir):
@@ -227,12 +228,12 @@ def parse_post_text(post, stickers_dir):
     post_raw_text = post['text_entities']
     post_parsed_text = ''
 
-    if type(post_raw_text) == str:
+    if isinstance(post_raw_text, str):
         return str(post_raw_text)
 
     else:
         for obj in post_raw_text:
-            if type(obj) == str:
+            if isinstance(post_raw_text, str):
                 post_parsed_text += obj
             elif (text := parse_text_object(post_id, obj, stickers_dir)) is not None:
                 post_parsed_text += str(text)
